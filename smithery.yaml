@@ -1,0 +1,16 @@
+name: sf-dog-shelter-finder
+version: 1.0.0
+description: MCP server for finding dog shelters in San Francisco using various public APIs.
+mcp.tools:
+  - name: shelter_locator
+    description: Finds dog shelters in a specified location and radius.
+    parameters:
+      type: object
+      properties:
+        location: { type: string }
+        radius: { type: integer }
+      required: [location, radius]
+port: 3000
+runtime: node
+framework: express
+apiPath: /api/mcp
