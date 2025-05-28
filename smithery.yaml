@@ -1,16 +1,78 @@
-name: sf-dog-shelter-finder
-version: 1.0.0
-description: MCP server for finding dog shelters in San Francisco using various public APIs.
-mcp.tools:
-  - name: shelter_locator
-    description: Finds dog shelters in a specified location and radius.
+# smithery.yaml configuration file
+# Docs: https://smithery.ai/docs/config#smitheryyaml
+
+version: 0.1.0
+
+info:
+  name: indonesia-cat-shelter-finder
+  title: Indonesia Cat Shelter Finder
+  description: An MCP server for finding cat shelters in Indonesia.
+
+startCommand:
+  type: http
+  configSchema:
+    type: object
+    required: []
+    properties:
+      logLevel:
+        type: string
+        description: Log level for the server
+        default: info
+        enum: [debug, info, warn, error]
+
+  commandFunction:
+    |-
+      (config) => ({
+        "command": "npm",
+        "args": ["start"],
+        "env": {
+          "NODE_ENV": "production",
+          "LOG_LEVEL": config.logLevel || "info",
+          "PORT": process.env.PORT || "3000"
+        }
+      })
+
+server:
+  url: ${env.MCP_SERVER_URL}
+  healthCheck: /health
+  apiPath: /api/mcp
+
+containerPort: 3000
+
+tools:
+  - name: shelter_search
+    description: Search for cat shelters based on location.
     parameters:
-      type: object
-      properties:
-        location: { type: string }
-        radius: { type: integer }
-      required: [location, radius]
-port: 3000
-runtime: node
-framework: express
-apiPath: /api/mcp
+      - name: location
+        description: Location coordinates for the search.
+        type: string
+        required: true
+
+  - name: availability_check
+    description: Check the availability and capacity of a specific shelter.
+    parameters:
+      - name: shelterId
+        description: Unique identifier for the shelter.
+        type: string
+        required: true
+
+actions:
+  healthCheck:
+    operationId: getHealth
+    summary: Health Check
+    description: Returns server health status
+    method: GET
+    path: /health
+  
+  mcpApi:
+    operationId: postMcpApi
+    summary: MCP JSON-RPC API
+    description: Main MCP API endpoint
+    method: POST
+    path: /api/mcp
+
+metadata:
+  version: "1.0.0"
+  tags:
+    - mcp
+    - ai-tools
